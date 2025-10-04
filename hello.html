@@ -1,6 +1,187 @@
-<html>
-  <body>
-    <h1>Hello Extensions</h1>
-    <script src="popup.js"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Risk Scanner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      width: 280px;
+      margin: 0;
+      padding: 15px;
+      background: #f9fafb;
+      color: #333;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 1.2em;
+      margin-bottom: 15px; /* Increased margin for better spacing */
+    }
+
+    /* Styles for the single flag icon */
+    .flag-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #risk-flag {
+      width: 70px; /* Increased size for prominence */
+      height: 70px;
+      border-radius: 50%;
+      margin: 0 auto;
+      border: 4px solid #fff; /* White border for contrast */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: background 0.3s ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px; /* Size for a potential icon/emoji */
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    /* Specific colors for the flag */
+    .risk-high { background: #e74c3c; /* Red */ }
+    .risk-moderate { background: #f1c40f; /* Yellow */ }
+    .risk-low { background: #2ecc71; /* Green */ }
+
+    .progress-container {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .progress-label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 15px;
+      border-radius: 10px;
+      background: #ddd;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #e74c3c, #f1c40f, #2ecc71);
+      transition: width 0.5s ease-in-out;
+    }
+
+    #percent {
+      margin-top: 8px;
+      font-size: 0.9em;
+    }
+
+    /* Styles for the Learn More button */
+    #learn-more-btn {
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      background-color: #3498db; /* Blue color */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background-color 0.2s;
+    }
+
+    #learn-more-btn:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <h2>Privacy Risk Scanner</h2>
+
+  <div class="flag-container">
+    <div id="risk-flag" title="Overall Risk"></div>
+  </div>
+
+  <div class="progress-container">
+    <span class="progress-label">Website Safety</span>
+    <div class="progress-bar">
+      <div id="progress-fill" class="progress-fill"></div>
+    </div>
+    <div id="percent">0%</div>
+  </div>
+
+  <button id="learn-more-btn">Learn More</button>
+
+  <script>
+    const riskFlag = document.getElementById('risk-flag');
+    const progress = document.getElementById('progress-fill');
+    const percentText = document.getElementById('percent');
+    const learnMoreBtn = document.getElementById('learn-more-btn');
+
+    // --- Placeholder Simulation Functions ---
+    // Simulate initial scan result (e.g., a "Moderate" risk level)
+    document.addEventListener('DOMContentLoaded', () => {
+      // For demonstration, let's simulate a Moderate Risk (Yellow, 60%) initially
+      // In your actual extension, you will call a function to get the real result.
+      simulateScanResult('moderate'); 
+    });
+
+    function simulateScanResult(riskLevel) {
+      let progressValue = 0;
+      let flagClass = '';
+      let flagText = '';
+
+      // Reset the flag class
+      riskFlag.classList.remove('risk-high', 'risk-moderate', 'risk-low');
+
+      if (riskLevel === 'high') {
+        progressValue = 20;
+        flagClass = 'risk-high';
+        flagText = 'H'; // 'H' for High Risk
+        riskFlag.title = "High Risk";
+      } else if (riskLevel === 'moderate') {
+        progressValue = 60;
+        flagClass = 'risk-moderate';
+        flagText = 'M'; // 'M' for Moderate Risk
+        riskFlag.title = "Moderate Risk";
+      } else { // low
+        progressValue = 90;
+        flagClass = 'risk-low';
+        flagText = 'L'; // 'L' for Low Risk
+        riskFlag.title = "Low Risk";
+      }
+
+      // Update the flag, progress bar, and percentage text
+      riskFlag.classList.add(flagClass);
+      riskFlag.textContent = flagText; // Display the risk level initial
+      updateBar(progressValue);
+
+      // Show the Learn More button after the scan result is in
+      learnMoreBtn.style.display = 'block'; 
+    }
+
+    function updateBar(value) {
+      progress.style.width = value + '%';
+      percentText.textContent = value + '%';
+    }
+
+    // --- Learn More Button Handler ---
+    learnMoreBtn.addEventListener('click', () => {
+      // This is where you would open a new tab, a new extension page, 
+      // or a detailed modal with the specific reasons for the rating.
+      alert('Opening detailed report for the current website risk rating...');
+      
+      // Example of opening a new tab to an imaginary detailed report page:
+      // chrome.tabs.create({ url: 'detailed_report.html' }); 
+      // (This requires the 'tabs' permission in your manifest.json)
+    });
+
+    // You can remove the old click handlers for the three circles now.
+    // The main logic will be driven by your actual content scanning logic 
+    // that calls simulateScanResult('...') based on the terms and conditions.
+  </script>
+</body>
 </html>
