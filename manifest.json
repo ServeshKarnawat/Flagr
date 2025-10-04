@@ -2,16 +2,13 @@
   "manifest_version": 3,
   "name": "Gemini Terms Analyzer",
   "version": "1.0",
-  "description": "Automatically runs a Gemini analysis when popup opens.",
-  "action": {
-    "default_popup": "hello.html",
-    "default_icon": "hello_extensions.png"
-  },
-  "permissions": [
-    "activeTab",
-    "scripting"
-  ],
+  "description": "Analyzes Terms of Service with Gemini",
+  "permissions": ["activeTab", "scripting"],
   "host_permissions": [
-    "http://127.0.0.1:5000/*"
-  ]
+    "http://127.0.0.1:5000/*",
+    "http://localhost:5000/*"
+  ],
+  "action": {
+    "default_popup": "hello.html"
+  }
 }

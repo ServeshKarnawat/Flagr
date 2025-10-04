@@ -43,15 +43,15 @@ def summarize_terms(url):
 @app.route('/compute', methods=['POST'])
 def compute():
     data = request.get_json()
-    url = data.get('url', None)
+    url = data.get('url')
     if not url:
-        return jsonify({'error': 'Missing URL'}), 400
+        return jsonify({"error": "Missing URL"}), 400
 
     try:
         summary = summarize_terms(url)
-        return jsonify({'summary': summary})
+        return jsonify({"summary": summary})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':

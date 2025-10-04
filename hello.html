@@ -100,7 +100,8 @@
 </head>
 <body>
   <h2>Privacy Risk Scanner</h2>
-
+  <div id="result">Waiting...</div>
+  <script src="popup.js"></script>
   <div class="flag-container">
     <div id="risk-flag" title="Overall Risk"></div>
   </div>
@@ -116,72 +117,105 @@
   <button id="learn-more-btn">Learn More</button>
 
   <script>
-    const riskFlag = document.getElementById('risk-flag');
-    const progress = document.getElementById('progress-fill');
-    const percentText = document.getElementById('percent');
-    const learnMoreBtn = document.getElementById('learn-more-btn');
+  const riskFlag = document.getElementById('risk-flag');
+  const progress = document.getElementById('progress-fill');
+  const percentText = document.getElementById('percent');
+  const learnMoreBtn = document.getElementById('learn-more-btn');
 
-    // --- Placeholder Simulation Functions ---
-    // Simulate initial scan result (e.g., a "Moderate" risk level)
-    document.addEventListener('DOMContentLoaded', () => {
-      // For demonstration, let's simulate a Moderate Risk (Yellow, 60%) initially
-      // In your actual extension, you will call a function to get the real result.
-      simulateScanResult('moderate'); 
-    });
+  let fullSummary = ""; // store full text for "Learn More" section
+  let expanded = false;
 
-    function simulateScanResult(riskLevel) {
-      let progressValue = 0;
-      let flagClass = '';
-      let flagText = '';
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      // Get current tab URL
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      const url = tab.url;
 
-      // Reset the flag class
-      riskFlag.classList.remove('risk-high', 'risk-moderate', 'risk-low');
+      // Call your Flask backend
+      const res = await fetch("http://127.0.0.1:5000/compute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url })
+      });
 
-      if (riskLevel === 'high') {
-        progressValue = 20;
-        flagClass = 'risk-high';
-        flagText = 'H'; // 'H' for High Risk
-        riskFlag.title = "High Risk";
-      } else if (riskLevel === 'moderate') {
-        progressValue = 60;
-        flagClass = 'risk-moderate';
-        flagText = 'M'; // 'M' for Moderate Risk
-        riskFlag.title = "Moderate Risk";
-      } else { // low
-        progressValue = 90;
-        flagClass = 'risk-low';
-        flagText = 'L'; // 'L' for Low Risk
-        riskFlag.title = "Low Risk";
+      const data = await res.json();
+
+      if (data.summary) {
+        fullSummary = data.summary;
+
+        // Try to extract score using regex
+        const scoreMatch = data.summary.match(/([0-9]+(?:\.[0-9]+)?)\s*(?:\/\s*10)?/);
+        const score = scoreMatch ? parseFloat(scoreMatch[1]) : null;
+
+        if (score !== null) {
+          updateRiskUI(score);
+        } else {
+          console.warn("Could not parse score, defaulting to moderate");
+          updateRiskUI(5); // fallback
+        }
+      } else {
+        riskFlag.textContent = "!";
+        riskFlag.classList.add("risk-high");
+        percentText.textContent = "Error fetching summary.";
       }
+    } catch (err) {
+      console.error(err);
+      percentText.textContent = "Error: " + err.message;
+      riskFlag.textContent = "!";
+      riskFlag.classList.add("risk-high");
+    }
+  });
 
-      // Update the flag, progress bar, and percentage text
-      riskFlag.classList.add(flagClass);
-      riskFlag.textContent = flagText; // Display the risk level initial
-      updateBar(progressValue);
+  function updateRiskUI(score) {
+    const progressValue = Math.round((score / 10) * 100);
+    const flagClass =
+      score < 4 ? "risk-high" :
+      score < 7 ? "risk-moderate" :
+      "risk-low";
 
-      // Show the Learn More button after the scan result is in
-      learnMoreBtn.style.display = 'block'; 
+    // Reset flag
+    riskFlag.classList.remove("risk-high", "risk-moderate", "risk-low");
+    riskFlag.classList.add(flagClass);
+    riskFlag.textContent = score.toFixed(1);
+    riskFlag.title = `Overall Score: ${score.toFixed(1)}`;
+
+    updateBar(progressValue);
+    learnMoreBtn.style.display = "block";
+  }
+
+  function updateBar(value) {
+    progress.style.width = value + "%";
+    percentText.textContent = value + "%";
+  }
+
+  // --- Learn More Button Handler ---
+  learnMoreBtn.addEventListener("click", () => {
+    let existing = document.getElementById("full-summary");
+
+    if (!existing) {
+      existing = document.createElement("div");
+      existing.id = "full-summary";
+      existing.style.marginTop = "10px";
+      existing.style.padding = "10px";
+      existing.style.background = "#fff";
+      existing.style.borderRadius = "5px";
+      existing.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+      existing.style.maxHeight = "0px";
+      existing.style.overflow = "hidden";
+      existing.style.transition = "max-height 0.3s ease";
+      document.body.appendChild(existing);
     }
 
-    function updateBar(value) {
-      progress.style.width = value + '%';
-      percentText.textContent = value + '%';
+    if (!expanded) {
+      existing.textContent = fullSummary;
+      existing.style.maxHeight = "400px";
+      learnMoreBtn.textContent = "Hide Details";
+    } else {
+      existing.style.maxHeight = "0px";
+      learnMoreBtn.textContent = "Learn More";
     }
-
-    // --- Learn More Button Handler ---
-    learnMoreBtn.addEventListener('click', () => {
-      // This is where you would open a new tab, a new extension page, 
-      // or a detailed modal with the specific reasons for the rating.
-      alert('Opening detailed report for the current website risk rating...');
-      
-      // Example of opening a new tab to an imaginary detailed report page:
-      // chrome.tabs.create({ url: 'detailed_report.html' }); 
-      // (This requires the 'tabs' permission in your manifest.json)
-    });
-
-    // You can remove the old click handlers for the three circles now.
-    // The main logic will be driven by your actual content scanning logic 
-    // that calls simulateScanResult('...') based on the terms and conditions.
-  </script>
+    expanded = !expanded;
+  });
+</script>
 </body>
 </html>
