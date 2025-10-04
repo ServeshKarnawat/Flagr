@@ -27,7 +27,8 @@ def summarize_terms(url):
         1. Overall Score (1–10)
         2. Red Flags (if any)
         3. Green Flags (if any)
-        4. Summary of Terms of Service
+        4. Summary of Terms of 
+        format note:In your output, make sure the first number you print is the score of the website out of ten.
         """,
         config=GenerateContentConfig(tools=tools)
     )
