@@ -9,6 +9,7 @@
     "http://localhost:5000/*"
   ],
   "action": {
-    "default_popup": "hello.html"
+    "default_popup": "hello.html",
+    "default_icon": "flagImage.png"
   }
 }
