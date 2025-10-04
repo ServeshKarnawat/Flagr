@@ -29,6 +29,8 @@ def summarize_terms(url):
         Green Flags (if any)
         Summary of Terms of 
         format note:In your output, make sure the first number you print is the score of the website out of ten.
+        note: if the company trains AI using user data, that should significantly reduce the score.
+        note: try not to just say 7/10 as a happy medium, be more opinionated and extreme.
         """,
         config=GenerateContentConfig(tools=tools)
     )
