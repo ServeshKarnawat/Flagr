@@ -17,7 +17,7 @@
     h2 {
       text-align: center;
       font-size: 1.2em;
-      margin-bottom: 15px; /* Increased margin for better spacing */
+      margin-bottom: 15px;
     }
 
     /* Styles for the single flag icon */
@@ -25,6 +25,15 @@
       text-align: center;
       margin-bottom: 20px;
     }
+    
+    /* NEW STYLE: For the text under the flag */
+    #risk-text {
+        font-weight: bold;
+        font-size: 1.1em;
+        margin-top: 5px; /* Spacing between circle and text */
+        color: #555;
+    }
+
 
     #risk-flag {
       width: 70px; /* Increased size for prominence */
@@ -91,6 +100,7 @@
       cursor: pointer;
       font-size: 1em;
       transition: background-color 0.2s;
+      display: none; /* Keep hidden until score is fetched */
     }
 
     #learn-more-btn:hover {
@@ -101,9 +111,12 @@
 <body>
   <h2>Privacy Risk Scanner</h2>
   <div id="result">Waiting...</div>
+  
   <div class="flag-container">
     <div id="risk-flag" title="Overall Risk"></div>
+    <div id="risk-text">...</div> 
   </div>
+
   <div class="progress-container">
     <span class="progress-label">Website Safety</span>
     <div class="progress-bar">
